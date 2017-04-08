@@ -51,7 +51,7 @@ namespace FluentAssemblyScanner
         [NotNull]
         public FromAssemblyDefiner ExcludeAssemblyContaining<T>()
         {
-            return ExcludeAssemblyFullNamed(typeof(T).Assembly.FullName);
+            return ExcludeAssemblyFullNamed(typeof(T).GetTypeInfo().Assembly.FullName);
         }
 
         /// <summary>

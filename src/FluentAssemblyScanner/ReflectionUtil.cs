@@ -5,9 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 using JetBrains.Annotations;
+
+using Microsoft.Extensions.PlatformAbstractions;
+#if !NET452
+using System.Runtime.Loader;
+
+#endif
+
 // ReSharper disable UncatchableException
 
 // ReSharper disable UnthrowableException
@@ -24,24 +30,11 @@ namespace FluentAssemblyScanner
         /// <summary>
         ///     The open generic array interfaces
         /// </summary>
-        public static readonly Type[] OpenGenericArrayInterfaces = typeof(object[]).GetInterfaces()
-                                                                                   .Where(i => i.IsGenericType)
+        public static readonly Type[] OpenGenericArrayInterfaces = typeof(object[]).GetTypeInfo()
+                                                                                   .GetInterfaces()
+                                                                                   .Where(i => i.GetTypeInfo().IsGenericType)
                                                                                    .Select(i => i.GetGenericTypeDefinition())
                                                                                    .ToArray();
-
-        /// <summary>
-        ///     Creates the instance.
-        /// </summary>
-        /// <typeparam name="TBase">The type of the base.</typeparam>
-        /// <param name="subtypeofTBase">The subtypeof t base.</param>
-        /// <param name="ctorArgs">The ctor arguments.</param>
-        /// <returns></returns>
-        public static TBase CreateInstance<TBase>(this Type subtypeofTBase, params object[] ctorArgs)
-        {
-            EnsureIsAssignable<TBase>(subtypeofTBase);
-
-            return Instantiate<TBase>(subtypeofTBase, ctorArgs ?? new object[0]);
-        }
 
         /// <summary>
         ///     Gets the application assemblies.
@@ -100,6 +93,7 @@ namespace FluentAssemblyScanner
                 Assembly assembly;
                 if (IsAssemblyFile(assemblyName))
                 {
+#if NET452
                     if (Path.GetDirectoryName(assemblyName) == AppDomain.CurrentDomain.BaseDirectory)
                     {
                         assembly = Assembly.Load(Path.GetFileNameWithoutExtension(assemblyName));
@@ -108,10 +102,24 @@ namespace FluentAssemblyScanner
                     {
                         assembly = Assembly.LoadFile(assemblyName);
                     }
+#else
+                    if (Path.GetDirectoryName(assemblyName) == new ApplicationEnvironment().ApplicationBasePath)
+                    {
+                        assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(assemblyName)));
+                    }
+                    else
+                    {
+                        assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyName);
+                    }
+#endif
                 }
                 else
                 {
+#if NET452
                     assembly = Assembly.Load(assemblyName);
+#else
+                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyName);
+#endif
                 }
                 return assembly;
             }
@@ -173,18 +181,6 @@ namespace FluentAssemblyScanner
         }
 
         /// <summary>
-        ///     Gets the attributes.
-        /// </summary>
-        /// <typeparam name="TAttribute">The type of the attribute.</typeparam>
-        /// <param name="item">The item.</param>
-        /// <returns></returns>
-        [CanBeNull]
-        public static TAttribute[] GetAttributes<TAttribute>([NotNull] this MemberInfo item) where TAttribute : Attribute
-        {
-            return (TAttribute[])Attribute.GetCustomAttributes(item, typeof(TAttribute), true);
-        }
-
-        /// <summary>
         ///     Gets the available types.
         /// </summary>
         /// <param name="assembly">The assembly.</param>
@@ -240,7 +236,7 @@ namespace FluentAssemblyScanner
             {
                 return type.GetElementType();
             }
-            if (type.IsGenericType == false || type.IsGenericTypeDefinition)
+            if (type.GetTypeInfo().IsGenericType == false || type.GetTypeInfo().IsGenericTypeDefinition)
             {
                 return null;
             }
@@ -248,20 +244,10 @@ namespace FluentAssemblyScanner
             Type openGeneric = type.GetGenericTypeDefinition();
             if (OpenGenericArrayInterfaces.Contains(openGeneric))
             {
-                return type.GetGenericArguments()[0];
+                return type.GetTypeInfo().GetGenericArguments()[0];
             }
 
             return null;
-        }
-
-        /// <summary>
-        ///     Gets the loaded assemblies.
-        /// </summary>
-        /// <returns></returns>
-        [NotNull]
-        public static Assembly[] GetLoadedAssemblies()
-        {
-            return AppDomain.CurrentDomain.GetAssemblies();
         }
 
         /// <summary>
@@ -301,7 +287,7 @@ namespace FluentAssemblyScanner
         /// </returns>
         public static bool Is<TType>(this Type type)
         {
-            return typeof(TType).IsAssignableFrom(type);
+            return typeof(TType).GetTypeInfo().IsAssignableFrom(type);
         }
 
         /// <summary>
@@ -370,8 +356,9 @@ namespace FluentAssemblyScanner
             }
 
             return Expression.Lambda<Func<object[], object>>(
-                Expression.New(ctor, parameterExpressions),
-                argument).Compile();
+                                 Expression.New(ctor, parameterExpressions),
+                                 argument)
+                             .Compile();
         }
 
         /// <summary>
@@ -387,7 +374,7 @@ namespace FluentAssemblyScanner
                 return;
             }
 
-            string message = typeof(TBase).IsInterface
+            string message = typeof(TBase).GetTypeInfo().IsInterface
                 ? $"Type {subtypeofTBase.FullName} does not implement the interface {typeof(TBase).FullName}."
                 : $"Type {subtypeofTBase.FullName} does not inherit from {typeof(TBase).FullName}.";
 
@@ -404,65 +391,21 @@ namespace FluentAssemblyScanner
             AssemblyName assemblyName;
             try
             {
+#if NET452
                 assemblyName = AssemblyName.GetAssemblyName(filePath);
+#else
+                assemblyName = AssemblyLoadContext.GetAssemblyName(filePath);
+#endif
             }
             catch (ArgumentException)
             {
+#if NET452
                 assemblyName = new AssemblyName { CodeBase = filePath };
+#else
+                assemblyName = new AssemblyName { Name = filePath };
+#endif
             }
             return assemblyName;
-        }
-
-        /// <summary>
-        ///     Instantiates the specified subtypeof t base.
-        /// </summary>
-        /// <typeparam name="TBase">The type of the base.</typeparam>
-        /// <param name="subtypeofTBase">The subtypeof t base.</param>
-        /// <param name="ctorArgs">The ctor arguments.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentException"></exception>
-        /// <exception cref="System.Exception"></exception>
-        private static TBase Instantiate<TBase>(Type subtypeofTBase, object[] ctorArgs)
-        {
-            ctorArgs = ctorArgs ?? new object[0];
-            Type[] types = ctorArgs.ConvertAll(a => a == null ? typeof(object) : a.GetType());
-            ConstructorInfo constructor = subtypeofTBase.GetConstructor(BindingFlags.Instance | BindingFlags.Public, null, types, null);
-            if (constructor != null)
-            {
-                return (TBase)Instantiate(constructor, ctorArgs);
-            }
-
-            try
-            {
-                return (TBase)Activator.CreateInstance(subtypeofTBase, ctorArgs);
-            }
-            catch (MissingMethodException ex)
-            {
-                string message;
-                if (ctorArgs.Length == 0)
-                {
-                    message = $"Type {subtypeofTBase.FullName} does not have a public default constructor and could not be instantiated.";
-                }
-                else
-                {
-                    var messageBuilder = new StringBuilder();
-                    messageBuilder.AppendLine(
-                        $"Type {subtypeofTBase.FullName} does not have a public constructor matching arguments of the following types:");
-                    foreach (Type type in ctorArgs.Select(o => o.GetType()))
-                    {
-                        messageBuilder.AppendLine(type.FullName);
-                    }
-
-                    message = messageBuilder.ToString();
-                }
-
-                throw new ArgumentException(message, ex);
-            }
-            catch (Exception ex)
-            {
-                string message = $"Could not instantiate {subtypeofTBase.FullName}.";
-                throw new Exception(message, ex);
-            }
         }
 
         /// <summary>

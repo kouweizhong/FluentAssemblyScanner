@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace FluentAssemblyScanner
 {
@@ -27,7 +28,7 @@ namespace FluentAssemblyScanner
         /// </returns>
         public static bool HasAttribute(Type type, Type attributeType)
         {
-            return Attribute.IsDefined(type, attributeType);
+            return type.GetTypeInfo().IsDefined(attributeType);
         }
 
         /// <summary>

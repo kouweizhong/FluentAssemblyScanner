@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 
 using JetBrains.Annotations;
 
+using Microsoft.Extensions.PlatformAbstractions;
+
 namespace FluentAssemblyScanner
 {
     public class AssemblyScanner
@@ -32,7 +34,7 @@ namespace FluentAssemblyScanner
         {
             Check.NotNull(type, nameof(type));
 
-            return new FromAssemblyDefiner(type.Assembly);
+            return new FromAssemblyDefiner(type.GetTypeInfo().Assembly);
         }
 
         /// <summary>
@@ -60,6 +62,7 @@ namespace FluentAssemblyScanner
             return new FromAssemblyDefiner(assemblies);
         }
 
+#if NET452
         /// <summary>
         ///     Scans current assembly and all refernced assemblies with the same first part of the name.
         /// </summary>
@@ -77,7 +80,8 @@ namespace FluentAssemblyScanner
         {
             var assemblies = new HashSet<Assembly>(ReflectionUtil.GetApplicationAssemblies(Assembly.GetCallingAssembly()));
             return new FromAssemblyDefiner(assemblies);
-        }
+        }        
+#endif
 
         /// <summary>
         ///     Froms the assembly in this application directory.
@@ -86,7 +90,12 @@ namespace FluentAssemblyScanner
         [NotNull]
         public static FromAssemblyDefiner FromAssemblyInThisApplicationDirectory()
         {
+#if NET452
             IEnumerable<Assembly> assemblies = ReflectionUtil.GetAssemblies(new AssemblyFilter(AppDomain.CurrentDomain.GetActualDomainPath()));
+#else
+            IEnumerable<Assembly> assemblies = ReflectionUtil.GetAssemblies(new AssemblyFilter(new ApplicationEnvironment().ApplicationBasePath));
+#endif
+
             return new FromAssemblyDefiner(assemblies);
         }
 
@@ -128,6 +137,7 @@ namespace FluentAssemblyScanner
             return new FromAssemblyDefiner(assemblies);
         }
 
+#if NET452
         /// <summary>
         ///     Froms the this assembly.
         /// </summary>
@@ -138,5 +148,6 @@ namespace FluentAssemblyScanner
         {
             return FromAssembly(Assembly.GetCallingAssembly());
         }
+#endif
     }
 }

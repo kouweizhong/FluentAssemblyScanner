@@ -31,7 +31,7 @@ namespace FluentAssemblyScanner
             _filterActions = filterActions;
 
             filterActions.Add(type => AndFilter(type));
-            filterActions.Add(type => type.GetMethods().Any(method => MethodFilters.ApplyTo(method)));
+            filterActions.Add(type => type.GetTypeInfo().GetMethods().Any(method => MethodFilters.ApplyTo(method)));
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace FluentAssemblyScanner
         [NotNull]
         public FilterDefiner Classes()
         {
-            Where(type => type.IsClass && !type.IsInterface);
+            Where(type => type.GetTypeInfo().IsClass && !type.GetTypeInfo().IsInterface);
             return this;
         }
 
@@ -62,7 +62,7 @@ namespace FluentAssemblyScanner
         [NotNull]
         public FilterDefiner Interfaces()
         {
-            Where(type => !type.IsClass && type.IsInterface);
+            Where(type => !type.GetTypeInfo().IsClass && type.GetTypeInfo().IsInterface);
             return this;
         }
 
@@ -73,7 +73,7 @@ namespace FluentAssemblyScanner
         [NotNull]
         public FilterDefiner NonAbstract()
         {
-            Where(type => type.IsAbstract == false);
+            Where(type => type.GetTypeInfo().IsAbstract == false);
             return this;
         }
 
@@ -84,7 +84,7 @@ namespace FluentAssemblyScanner
         [NotNull]
         public FilterDefiner NonStatic()
         {
-            Where(type => type.IsAbstract == false && type.IsSealed == false);
+            Where(type => type.GetTypeInfo().IsAbstract == false && type.GetTypeInfo().IsSealed == false);
             return this;
         }
 
@@ -95,7 +95,7 @@ namespace FluentAssemblyScanner
         [NotNull]
         public FilterDefiner NonAttribute()
         {
-            Where(type => !typeof(Attribute).IsAssignableFrom(type));
+            Where(type => !typeof(Attribute).GetTypeInfo().IsAssignableFrom(type));
             return this;
         }
 

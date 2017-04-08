@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 using JetBrains.Annotations;
 
@@ -27,7 +28,7 @@ namespace FluentAssemblyScanner
                 _fromAssemblyDefinerBase.GetAllTypes().ToList(),
                 new List<Func<Type, bool>>
                 {
-                    type => BasedOns.Any(t => t.IsAssignableFrom(type)),
+                    type => BasedOns.Any(t => t.GetTypeInfo().IsAssignableFrom(type)),
                     type => TypeFilter.ApplyTo(type)
                 });
         }

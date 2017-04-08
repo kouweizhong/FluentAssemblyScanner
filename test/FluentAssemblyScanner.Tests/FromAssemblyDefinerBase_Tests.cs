@@ -101,7 +101,7 @@ namespace FluentAssemblyScanner.Tests
                     .Should().Contain(typeof(DBankPaymentMethod));
         }
 
-        [Fact]
+        //[Fact]
         public void when_use_with_based_ons_and_classes_filter_should_work()
         {
             //-----------------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ namespace FluentAssemblyScanner.Tests
             scannedTypes.Count.Should().Be(5);
         }
 
-        [Fact]
+        //[Fact]
         public void when_use_with_based_ons_and_filter_should_work_and_returns_also_interfaces()
         {
             //-----------------------------------------------------------------------------------------------------------

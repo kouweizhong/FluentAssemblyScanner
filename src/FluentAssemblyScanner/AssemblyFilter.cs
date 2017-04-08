@@ -7,6 +7,8 @@ using System.Reflection;
 
 using JetBrains.Annotations;
 
+using Microsoft.Extensions.PlatformAbstractions;
+
 namespace FluentAssemblyScanner
 {
     public class AssemblyFilter
@@ -106,7 +108,7 @@ namespace FluentAssemblyScanner
         [NotNull]
         public AssemblyFilter WithKeyToken([NotNull] Type typeFromAssemblySignedWithKey)
         {
-            return WithKeyToken(typeFromAssemblySignedWithKey.Assembly);
+            return WithKeyToken(typeFromAssemblySignedWithKey.GetTypeInfo().Assembly);
         }
 
         /// <summary>
@@ -117,7 +119,7 @@ namespace FluentAssemblyScanner
         [NotNull]
         public AssemblyFilter WithKeyToken<TTypeFromAssemblySignedWithKey>()
         {
-            return WithKeyToken(typeof(TTypeFromAssemblySignedWithKey).Assembly);
+            return WithKeyToken(typeof(TTypeFromAssemblySignedWithKey).GetTypeInfo().Assembly);
         }
 
         /// <summary>
@@ -136,7 +138,7 @@ namespace FluentAssemblyScanner
         {
             if (Path.IsPathRooted(path) == false)
             {
-                path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+                path = Path.Combine(new ApplicationEnvironment().ApplicationBasePath, path);
             }
             return Path.GetFullPath(path);
         }
