@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <VersionPrefix>1.0.7</VersionPrefix>
-    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net452</TargetFrameworks>
     <AssemblyName>FluentAssemblyScanner</AssemblyName>
     <PackageId>FluentAssemblyScanner</PackageId>
     <PackageTags>asp.net;asp.net mvc;framework;library;assembly;scanner</PackageTags>
@@ -27,7 +27,7 @@
     <DefineConstants>TRACE;NET452</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
     <PackageReference Include="System.Runtime.Loader">
       <Version>4.3.0</Version>
     </PackageReference>
