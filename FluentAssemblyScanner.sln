@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2BF35C86-651F-484A-89CD-DCFFF32646E6}"
 EndProject
@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentAssemblyScanner.Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentAssemblyScanner.Test.SecondAdditionalAssembly", "test\FluentAssemblyScanner.Test.SecondAdditionalAssembly\FluentAssemblyScanner.Test.SecondAdditionalAssembly.csproj", "{30446811-1745-40E3-B141-FD15278A5E24}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentAssemblyScanner.NetCore.Tests", "test\FluentAssemblyScanner.NetCore.Tests\FluentAssemblyScanner.NetCore.Tests.csproj", "{60F98059-264D-45BA-985E-6DD03B5D0991}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{30446811-1745-40E3-B141-FD15278A5E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30446811-1745-40E3-B141-FD15278A5E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30446811-1745-40E3-B141-FD15278A5E24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60F98059-264D-45BA-985E-6DD03B5D0991}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60F98059-264D-45BA-985E-6DD03B5D0991}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60F98059-264D-45BA-985E-6DD03B5D0991}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60F98059-264D-45BA-985E-6DD03B5D0991}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,5 +67,6 @@ Global
 		{10BAA169-2579-4416-BBC9-7A1FF350F4D9} = {9D48C45B-64C7-4631-A217-116B83E76107}
 		{2865A2C3-F4F8-453F-B39B-91487F2DF836} = {20AB6590-16BA-485C-9933-1087FE8ABF40}
 		{30446811-1745-40E3-B141-FD15278A5E24} = {20AB6590-16BA-485C-9933-1087FE8ABF40}
+		{60F98059-264D-45BA-985E-6DD03B5D0991} = {9D48C45B-64C7-4631-A217-116B83E76107}
 	EndGlobalSection
 EndGlobal

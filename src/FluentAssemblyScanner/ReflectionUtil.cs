@@ -118,7 +118,7 @@ namespace FluentAssemblyScanner
 #if NET452
                     assembly = Assembly.Load(assemblyName);
 #else
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyName);
+                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(assemblyName));
 #endif
                 }
                 return assembly;
